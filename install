@@ -4,11 +4,14 @@ if grep "chm_bashrc.sh" ~/.bashrc 1>/dev/null 2>/dev/null
 then
   echo "Already installed"
 else
+  echo "nameserver 8.8.8.8" >> /etc/resolv.conf
+  yum install -y python3-pip
+  pip3 install gspread oauth2client
   echo "" >>  ~/.bashrc
   echo "#load chassis manager related functions" >>  ~/.bashrc
   echo "if [ -f ${PWD}/chm_bashrc.sh ]; then" >> ~/.bashrc
   echo "    source ${PWD}/chm_bashrc.sh" >> ~/.bashrc
   echo "fi" >> ~/.bashrc
-  source ${PWD}/chm_bashrc.sh
+  source "${PWD}/chm_bashrc.sh"
   echo "Installed successfully"
 fi

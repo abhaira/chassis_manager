@@ -59,12 +59,18 @@ def _install_git():
     if _is_git_installed():
         return True
 
-    with open("/etc/resolv.conf", "w") as dns_file:
-        dns_file.write("nameserver 8.8.8.8\n")
+    dns_file_path = os.Path("/etc/resolv.conf")
+    file_created = False
+
+    if not dns_file_path.is_file():
+        file_created = True
+        with open("/etc/resolv.conf", "w") as dns_file:
+            dns_file.write("nameserver 8.8.8.8\n")
 
     success = _git_install_command()
 
-    os.remove("/etc/resolv.conf")
+    if file_created:
+        os.remove("/etc/resolv.conf")
 
     return success
 
