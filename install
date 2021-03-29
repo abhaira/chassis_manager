@@ -1,0 +1,14 @@
+#!/bin/bash
+
+if grep "chm_bashrc.sh" ~/.bashrc 1>/dev/null 2>/dev/null
+then
+  echo "Already installed"
+else
+  echo "" >>  ~/.bashrc
+  echo "#load chassis manager related functions" >>  ~/.bashrc
+  echo "if [ -f ${PWD}/chm_bashrc.sh ]; then" >> ~/.bashrc
+  echo "    source ${PWD}/chm_bashrc.sh" >> ~/.bashrc
+  echo "fi" >> ~/.bashrc
+  source ${PWD}/chm_bashrc.sh
+  echo "Installed successfully"
+fi

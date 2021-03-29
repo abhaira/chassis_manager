@@ -1,0 +1,16 @@
+Installation
+==============
+To install the scripts simply run ./install
+
+How to use?
+===========
+1. If this is the first time you have installed the scripts on the chassis run `c_init`
+2. To Lock the chassis run `c_lock`
+3. If you are done with chassis, run `c_unlock`
+4. To check the owner who has already taken the lock, run `c_owners`
+5. To check the history of lock operations performed, run `c_history`
+6. To make any directory as a git repository, run `c_gitdir`
+
+Consolidated View
+===================
+https://docs.google.com/spreadsheets/d/1R6JdI1uuzopHEBgN6XIXvXWjWZncyALNEiozerP1sxs/edit#gid=0
