@@ -93,15 +93,21 @@ def init_git_repo(path):
 
 
 class ChassisManager:
-    def __init__(self):
+    def __init__(self, name=None, ip=None):
         self._lock = lock.Lock()
         self._config = configparser.ConfigParser()
-        self._chassis_name = _get_default_name()
-        self._chassis_ip = _get_default_ip()
+        self._chassis_name = name
+        self._chassis_ip = ip
         self._config.read(_get_config_file_path())
         self._gsheet = gsheet.GSheet(self._chassis_name, self._chassis_ip)
 
+        if self._chassis_name is not None and self._chassis_ip is not None:
+            self._update_gsheet()
+            return
+
         if 'Chassis' not in self._config:
+            self._chassis_name = _get_default_name()
+            self._chassis_ip = _get_default_ip()
             return
 
         if 'ip' in self._config['Chassis']:

@@ -119,7 +119,7 @@ def init(args):
 
         return False
 
-    chm = chassis_manager.ChassisManager()
+    chm = chassis_manager.ChassisManager(name, ip)
     chm.ch_init(name, ip)
     return True
 
