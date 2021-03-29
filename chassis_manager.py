@@ -96,42 +96,43 @@ class ChassisManager:
     def __init__(self, name=None, ip=None):
         self._lock = lock.Lock()
         self._config = configparser.ConfigParser()
-        self._chassis_name = name
-        self._chassis_ip = ip
         self._config.read(_get_config_file_path())
-        self._gsheet = gsheet.GSheet(self._chassis_name, self._chassis_ip)
 
-        if self._chassis_name is not None and self._chassis_ip is not None:
-            self._update_gsheet()
-            return
+        self._chassis_name = _get_default_name()
+        self._chassis_ip = _get_default_ip()
 
-        if 'Chassis' not in self._config:
-            self._chassis_name = _get_default_name()
-            self._chassis_ip = _get_default_ip()
-            return
+        if 'Chassis' in self._config:
+            if 'ip' in self._config['Chassis']:
+                self._chassis_ip = self._config['Chassis']['ip']
 
-        if 'ip' in self._config['Chassis']:
-            self._chassis_ip = self._config['Chassis']['ip']
+            if 'name' in self._config['Chassis']:
+                self._chassis_name = self._config['Chassis']['name']
 
-        if 'name' in self._config['Chassis']:
-            self._chassis_name = self._config['Chassis']['name']
+        if name is not None and name != '':
+            self._chassis_name = name
+
+        if ip is not None and ip != '':
+            self._chassis_ip = ip
+
 
         self._gsheet = gsheet.GSheet(self._chassis_name, self._chassis_ip)
         self._update_gsheet()
 
     def _update_gsheet(self):
-        self._gsheet.update_info(self._lock.lock_name(), self._lock.owners(), self._lock.waiters())
+        return self._gsheet.update_info(self._lock.lock_name(), self._lock.owners(), self._lock.waiters())
 
     def lock(self, lock_name, email, name, wait):
         success, error = self._lock.lock(lock_name, name, email)
 
         if success:
-            self._update_gsheet()
-            return True, None
+            return self._update_gsheet()
 
         if error in [lock.ErrNotAvailable, lock.ErrOnlySharedAllowed] and wait:
             self._lock.add_to_waiting_queue(email, True)
-            self._update_gsheet()
+
+            success, error = self._update_gsheet()
+            if not success:
+                return False, error
 
         return False, error
 
@@ -148,11 +149,11 @@ class ChassisManager:
 
         if self._lock.type() == lock.LockType.FREE and len(self._lock.waiters()):
             notified = self._lock.notify_waiters(_build_email_body(self._chassis_name, self._chassis_ip))
-            self._update_gsheet()
-            return True, None, notified
+            success, error = self._update_gsheet()
+            return success, error, notified
 
-        self._update_gsheet()
-        return True, None, 0
+        success, error = self._update_gsheet()
+        return success, error, 0
 
     def ch_init(self, name, ip):
         self._chassis_name = name
@@ -167,4 +168,4 @@ class ChassisManager:
             self._config.write(config_file)
 
         self._gsheet = gsheet.GSheet(self._chassis_name, self._chassis_ip)
-        self._update_gsheet()
+        return self._update_gsheet()

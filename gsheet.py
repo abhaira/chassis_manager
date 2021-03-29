@@ -24,25 +24,35 @@ class GSheet:
         self._sheet = client.open(sheet_name).sheet1
         self._chassis_name = name
         self._chassis_ip = ip
-        self._row = self._find_row()
+        self._row = self._find_or_create_row()
 
-    def _find_row(self):
-        all_chassis = self._sheet.get_all_records()
-        index = DATA_START_ROW
+    def _find_or_create_row(self):
+        ret = self._find_row()
 
-        for a_chassis in all_chassis:
-            if 'Name' in a_chassis and str(a_chassis['Name']).lower() == self._chassis_name:
-                return index
-
-            if 'IP' in a_chassis and str(a_chassis['IP']).lower() == self._chassis_ip:
-                return index
-            index += 1
+        if ret != -1:
+            return ret
 
         self._sheet.append_row([self._chassis_name, self._chassis_ip])
         return self._find_row()
 
+    def _find_row(self):
+        try:
+            return self._sheet.find(self._chassis_name, in_column=COL_CHASSIS_NAME).row
+        except gspread.exceptions.CellNotFound:
+            pass
+
+        try:
+            return self._sheet.find(self._chassis_ip, in_column=COL_CHASSIS_IP).row
+        except gspread.exceptions.CellNotFound:
+            pass
+
+        return -1
+
     def update_info(self, lock, owners=None, waiters=None):
-        self._sheet.delete_row(self._row)
+        if self._row == -1:
+            return False, "chassis row not found"
+
+        self._sheet.delete_rows(self._row)
 
         owners_list = ''
         waiters_list = ''
@@ -50,7 +60,12 @@ class GSheet:
         if owners is not None:
             owners_list = ', '.join([owner['Email'] for owner in owners])
 
-        if waiters_list is not None:
+        if waiters is not None:
             waiters_list = ', '.join([waiter['Email'] for waiter in waiters])
 
-        self._sheet.insert_row([self._chassis_name, self._chassis_ip, lock, owners_list, waiters_list], self._row)
+        try:
+            self._sheet.insert_row([self._chassis_name, self._chassis_ip, lock, owners_list, waiters_list], self._row)
+        except Exception as e:
+            return False, str(e)
+
+        return True, None
