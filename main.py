@@ -33,7 +33,9 @@ def lock(args):
 
     if not success:
         print(error)
+        return True
 
+    print("Lock acquired successfully")
     return True
 
 
@@ -80,8 +82,10 @@ def unlock(args):
         print(error)
         return True
 
-    print(f"{notified!s} waiters notified")
+    if notified > 0:
+        print(f"{notified!s} waiters notified")
 
+    print("Lock released successfully")
     return True
 
 
@@ -97,6 +101,7 @@ def git_init(args):
         print(error)
         return True
 
+    print("Git repository initialized successfully")
     return True
 
 
@@ -120,6 +125,7 @@ def init(args):
 
     chm = chassis_manager.ChassisManager(name, ip)
     chm.ch_init(name, ip)
+    print("Chassis initialized successfully")
     return True
 
 
@@ -175,7 +181,6 @@ if __name__ == "__main__":
     args = parse_user_args()
 
     if lock(args):
-        print("Lock acquired successfully")
         exit(0)
 
     if lock_history(args):
@@ -185,15 +190,12 @@ if __name__ == "__main__":
         exit(0)
 
     if unlock(args):
-        print("Lock released successfully")
         exit(0)
 
     if init(args):
-        print("Chassis initialized successfully")
         exit(0)
 
     if git_init(args):
-        print("Git repository initialized successfully")
         exit(0)
 
     exit(1)
