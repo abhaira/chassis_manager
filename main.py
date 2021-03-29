@@ -33,7 +33,6 @@ def lock(args):
 
     if not success:
         print(error)
-        return False
 
     return True
 
@@ -72,14 +71,14 @@ def unlock(args):
 
     if email is None:
         print("Please specify your pavilion email address")
-        return False
+        return True
 
     chm = chassis_manager.ChassisManager()
     success, error, notified = chm.unlock(email)
 
     if not success:
         print(error)
-        return False
+        return True
 
     print(f"{notified!s} waiters notified")
 
@@ -96,7 +95,7 @@ def git_init(args):
     success, error = chassis_manager.init_git_repo(git_repo)
     if not success:
         print(error)
-        return False
+        return True
 
     return True
 
