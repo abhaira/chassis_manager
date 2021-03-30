@@ -1,4 +1,4 @@
-config_file=`python3 -c 'import chassis_manager; print(chassis_manager._get_config_file_path())'`
+config_file=$(python3 -c "import sys; sys.path.append(\"${src_dir}\"); import chassis_manager; print(chassis_manager._get_config_file_path())")
 
 is_init()
 {
@@ -21,9 +21,9 @@ c_lock()
 
   if [[ "${notify}" == "y" ]]
   then
-    python3 ${PWD}/main.py --lock --lock-type "${lock_type}" --name "shell" --email "${email}" --notify
+    python3 ${src_dir}/main.py --lock --lock-type "${lock_type}" --name "shell" --email "${email}" --notify
   else
-    python3 ${PWD}/main.py --lock --lock-type "${lock_type}" --name "shell" --email "${email}"
+    python3 ${src_dir}/main.py --lock --lock-type "${lock_type}" --name "shell" --email "${email}"
   fi
 }
 
@@ -31,7 +31,7 @@ c_unlock()
 {
   is_init || return
   read -p "Please tell me your pavilion email address: " email
-  python3 ${PWD}/main.py --unlock --email "${email}"
+  python3 ${src_dir}/main.py --unlock --email "${email}"
 
 }
 
@@ -39,7 +39,7 @@ c_init()
 {
   read -p "Please specify a name this chassis: " name
   read -p "Please specify the IP of this chassis: " ip
-  python3 ${PWD}/main.py --init --chname "${name}" --chip "${ip}"
+  python3 ${src_dir}/main.py --init --chname "${name}" --chip "${ip}"
 
 }
 
@@ -47,18 +47,18 @@ c_init()
 c_history()
 {
   is_init || return
-  python3 ${PWD}/main.py --lock-history
+  python3 ${src_dir}/main.py --lock-history
 }
 
 c_owners()
 {
   is_init || return
-  python3 ${PWD}/main.py --lock-owners
+  python3 ${src_dir}/main.py --lock-owners
 }
 
 c_gitdir()
 {
   is_init || return
   read -p "Please tell me the directory path: " path
-  python3 ${PWD}/main.py --git-init "${path}"
+  python3 ${src_dir}/main.py --git-init "${path}"
 }

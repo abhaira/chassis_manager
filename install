@@ -1,4 +1,7 @@
 #!/bin/bash
+pushd "$(dirname $0)"
+src_dir="$(pwd)"
+popd
 
 if grep "chm_bashrc.sh" ~/.bashrc 1>/dev/null 2>/dev/null
 then
@@ -7,10 +10,11 @@ else
   echo "nameserver 8.8.8.8" >> /etc/resolv.conf
   yum install -y python3-pip
   pip3 install gspread oauth2client
+  sed -i "1i\src_dir=${src_dir}" ${src_dir}/chm_bashrc.sh
   echo "" >> ~/.bashrc
   echo "#load chassis manager related functions" >>  ~/.bashrc
-  echo "if [ -f ${PWD}/chm_bashrc.sh ]; then" >> ~/.bashrc
-  echo "    source ${PWD}/chm_bashrc.sh" >> ~/.bashrc
+  echo "if [ -f ${src_dir}/chm_bashrc.sh ]; then" >> ~/.bashrc
+  echo "    source ${src_dir}/chm_bashrc.sh" >> ~/.bashrc
   echo "fi" >> ~/.bashrc
   echo "Installed successfully"
   exec bash
