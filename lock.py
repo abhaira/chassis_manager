@@ -1,6 +1,8 @@
 import json
 import smtplib
 import ssl
+import pathlib
+
 
 from enum import Enum, auto
 from pathlib import Path
@@ -11,7 +13,7 @@ from datetime import datetime
 ******* Macros ***************
 ******************************
 """
-lock_file_path = "./"
+lock_file_path = str(pathlib.Path(__file__).parent.absolute())
 lock_file_name = "/.chm_lock.json"
 max_history = 50
 

@@ -4,8 +4,9 @@ import lock
 import os
 import subprocess
 import gsheet
+import pathlib
 
-config_file_path = "./"
+config_file_path = str(pathlib.Path(__file__).parent.absolute())
 config_file_name = "/chm_config.conf"
 
 

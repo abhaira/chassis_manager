@@ -1,4 +1,5 @@
 import gspread
+import pathlib
 from oauth2client.service_account import ServiceAccountCredentials
 
 scope = [
@@ -8,8 +9,12 @@ scope = [
     "https://www.googleapis.com/auth/drive"
 ]
 
-auth_file = './Quickstart-fc30c03af78b.json'
+
 sheet_name = "Chassis Info"
+auth_file_path = str(pathlib.Path(__file__).parent.absolute())
+auth_file_name = "/Quickstart-fc30c03af78b.json"
+
+
 DATA_START_ROW = 2
 COL_CHASSIS_NAME = 1
 COL_CHASSIS_IP = 2
@@ -17,9 +22,13 @@ COL_CHASSIS_LOCK = 3
 COL_CHASSIS_OWNERS = 4
 
 
+def _get_config_file_path():
+    return auth_file_path + auth_file_name
+
+
 class GSheet:
     def __init__(self, name, ip):
-        creds = ServiceAccountCredentials.from_json_keyfile_name(auth_file, scope)
+        creds = ServiceAccountCredentials.from_json_keyfile_name(_get_config_file_path(), scope)
         client = gspread.authorize(creds)
         self._sheet = client.open(sheet_name).sheet1
         self._chassis_name = name
