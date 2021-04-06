@@ -41,26 +41,57 @@ def _get_default_ip():
 
 
 def _is_git_directory(path):
-    return subprocess.call(['git', '-C', path, 'status'], stderr=subprocess.STDOUT, stdout=open(os.devnull, 'w')) == 0
+    try:
+        return subprocess.call(['git', '-C', path, 'status'], stderr=subprocess.STDOUT, stdout=open(os.devnull, 'w')) == 0
+    except Exception:
+        return False
 
 
 def _git_init(path):
-    return subprocess.call(['git', '-C', path, 'init'], stderr=subprocess.STDOUT, stdout=open(os.devnull, 'w')) == 0
+    try:
+        success = subprocess.call(['git', '-C', path, 'init'], stderr=subprocess.STDOUT, stdout=open(os.devnull, 'w')) == 0
+        if not success:
+            return success
+
+        success = subprocess.call(['git', '-C', path, 'config', '--global', 'user.email', 'tester@pavilion.io'], stderr=subprocess.STDOUT, stdout=open(os.devnull, 'w')) == 0
+        if not success:
+            return success
+
+        success = subprocess.call(['git', '-C', path, 'config', '--global', 'user.name', 'tester'], stderr=subprocess.STDOUT, stdout=open(os.devnull, 'w')) == 0
+        if not success:
+            return success
+
+        success = subprocess.call(['git', '-C', path, 'add', '.'], stderr=subprocess.STDOUT, stdout=open(os.devnull, 'w')) == 0
+        if not success:
+            return success
+
+        success = subprocess.call(['git', '-C', path, 'commit', '-m', "'Initialized git repo for testing'"], stderr=subprocess.STDOUT, stdout=open(os.devnull, 'w')) == 0
+        if not success:
+            return success
+
+    except Exception:
+        return False
 
 
 def _is_git_installed():
-    return subprocess.call(['git', '--version'], stderr=subprocess.STDOUT, stdout=open(os.devnull, 'w')) == 0
+    try:
+        return subprocess.call(['git', '--version'], stderr=subprocess.STDOUT, stdout=open(os.devnull, 'w')) == 0
+    except Exception:
+        return False
 
 
 def _git_install_command():
-    return subprocess.call(['yum', 'install', 'git', '-y'], stderr=subprocess.STDOUT, stdout=open(os.devnull, 'w')) == 0
+    try:
+        return subprocess.call(['yum', 'install', 'git', '-y'], stderr=subprocess.STDOUT, stdout=open(os.devnull, 'w')) == 0
+    except Exception:
+        return False
 
 
 def _install_git():
     if _is_git_installed():
         return True
 
-    dns_file_path = os.Path("/etc/resolv.conf")
+    dns_file_path = pathlib.Path("/etc/resolv.conf")
     file_created = False
 
     if not dns_file_path.is_file():
@@ -87,8 +118,8 @@ def init_git_repo(path):
     if not _install_git():
         return False, "Could not install 'git'"
 
-    if _is_git_directory(path):
-        return False, "Already a git repository"
+    #if _is_git_directory(path):
+    #    return False, "Already a git repository"
 
     return _git_init(path), None
 
